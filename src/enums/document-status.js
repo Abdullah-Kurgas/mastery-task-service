@@ -1,0 +1,6 @@
+export const DocumentStatus = {
+    UPLOADED: 'UPLOADED',
+    NEEDS_REVIEW: 'NEEDS_REVIEW',
+    VALIDATED: 'VALIDATED',
+    REJECTED: 'REJECTED'
+}

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { DocumentStatus } = require('../enums/document-status');
 const { Schema } = mongoose;
 
 const lineItemSchema = new Schema({
@@ -9,6 +10,8 @@ const lineItemSchema = new Schema({
 }, { _id: false });
 
 const documentSchema = new Schema({
+    name: String,
+    path: String,
     documentType: { type: String, default: null },
     supplier: { type: String, default: null },
     documentNumber: { type: String, default: null },
@@ -17,8 +20,11 @@ const documentSchema = new Schema({
     currency: { type: String, default: null },
     subtotal: { type: Number, default: null },
     taxAmount: { type: Number, default: null },
-    taxPercent: { type: String, default: null },
+    taxPercent: { type: Number, default: null },
     totalAmount: { type: Number, default: null },
+    status: { type: String, default: DocumentStatus.UPLOADED },
+    mediaType: String,
+    size: Number,
     lineItems: [lineItemSchema],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
