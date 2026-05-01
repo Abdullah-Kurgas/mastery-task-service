@@ -119,10 +119,15 @@ const extractCSVData = async (filePath) => {
     return parsedData;
 }
 
-const checkDuplicateDoc = async (docNumber) => {
+const checkDuplicateDoc = async (docNumber, docId) => {
     if (!docNumber) return false;
+    const doc = await Document.exists({ documentNumber: docNumber });
 
-    return !!(await Document.exists({ documentNumber: docNumber }));
+    console.log('====================================');
+    console.log(docId, (doc && doc != docId) , !!doc);
+    console.log('====================================');
+
+    return docId ? (doc && doc._id != docId) : !!doc;
 }
 
 const checkDocDates = (issueDate, dueDate) => {
@@ -175,11 +180,11 @@ const checkLineItemsAndTotals = (doc) => {
     return true;
 }
 
-const validateDocument = async (doc, ignoreIsDuplicate = false) => {
+const validateDocument = async (doc, ignoreIsDuplicate = false, docId = null) => {
     const missingFields = checkMissingFields(doc);
     const validDates = checkDocDates(doc?.issueDate, doc?.dueDate);
     const validLineItemsAndTotals = checkLineItemsAndTotals(doc);
-    const isDuplicate = await checkDuplicateDoc(doc?.documentNumber);
+    const isDuplicate = await checkDuplicateDoc(doc?.documentNumber, docId);
     let isValid = true;
 
     if (missingFields || !validDates || !validLineItemsAndTotals) {

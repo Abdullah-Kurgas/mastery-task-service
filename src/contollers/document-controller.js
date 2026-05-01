@@ -11,7 +11,7 @@ const GetDocuments = async (req, res) => {
 const GetDocumentDetails = async (req, res) => {
     try {
         const document = await Document.findById(req.params.id);
-        res.send(document);
+        res.status(200).json(document);
     } catch (error) {
         res.status(404).send({ message: 'Document not found' });
     }
@@ -43,10 +43,18 @@ const UpdateDocumentData = async (req, res) => {
             return res.status(404).json({ message: "Document not found" });
         }
 
-        const validatedDocument = await validateDocument({ ...document.toObject(), ...validatedReq }, !validatedReq.documentNumber);
+        const validatedDocument = await validateDocument(
+            { ...document.toObject(), ...validatedReq },
+            !validatedReq.documentNumber,
+            req.params.id
+        );
 
         if (validatedDocument.status === DocumentStatus.REJECTED) {
             return res.status(400).json({ message: "Document with same number already exists" });
+        }
+
+        if (validatedDocument.status === DocumentStatus.NEEDS_REVIEW) {
+            return res.status(400).json({ message: "Document data are not valid!" });
         }
 
         if (validatedDocument.status == DocumentStatus.VALIDATED) {
