@@ -1,6 +1,7 @@
 const { DocumentStatus } = require("../enums/document-status");
 const { Document } = require("../models/document-model");
 const UpdateDocumentDTO = require("../payloads/document-dto");
+const cloudinary = require('../config/cloudinary');
 const { parseFileDoc, deleteStorageDocument, validateDocument } = require("../services/document-service");
 
 const GetDocuments = async (req, res) => {
@@ -23,7 +24,17 @@ const UploadDocument = async (req, res) => {
 
         const extractedData = await parseFileDoc(req.file);
         const validatedDocument = await validateDocument(extractedData);
-        const newDoc = new Document(validatedDocument);
+
+        const cloudFile = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'mastery_task',
+            resource_type: 'auto',
+        });
+        
+
+        const newDoc = new Document({
+            ...validatedDocument,
+            path: cloudFile.url
+        });
 
         const savedDoc = await newDoc.save();
         await deleteStorageDocument(req.file);

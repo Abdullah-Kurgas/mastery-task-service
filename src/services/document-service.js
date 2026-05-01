@@ -123,10 +123,6 @@ const checkDuplicateDoc = async (docNumber, docId) => {
     if (!docNumber) return false;
     const doc = await Document.exists({ documentNumber: docNumber });
 
-    console.log('====================================');
-    console.log(docId, (doc && doc != docId) , !!doc);
-    console.log('====================================');
-
     return docId ? (doc && doc._id != docId) : !!doc;
 }
 
