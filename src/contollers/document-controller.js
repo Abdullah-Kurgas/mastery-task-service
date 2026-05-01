@@ -1,5 +1,6 @@
 const { DocumentStatus } = require("../enums/document-status");
 const { Document } = require("../models/document-model");
+const UpdateDocumentDTO = require("../payloads/document-dto");
 const { parseFileDoc, deleteStorageDocument, validateDocument } = require("../services/document-service");
 
 const GetDocuments = async (req, res) => {
@@ -9,10 +10,10 @@ const GetDocuments = async (req, res) => {
 
 const GetDocumentDetails = async (req, res) => {
     try {
-        const book = await Document.findById(req.params.id);
-        res.send(book);
+        const document = await Document.findById(req.params.id);
+        res.send(document);
     } catch (error) {
-        res.status(404).send({ message: 'Book not found' });
+        res.status(404).send({ message: 'Document not found' });
     }
 }
 
@@ -33,9 +34,37 @@ const UploadDocument = async (req, res) => {
     }
 }
 
+const UpdateDocumentData = async (req, res) => {
+    try {
+        const validatedReq = UpdateDocumentDTO.parse(req.body);
+        const document = await Document.findById(req.params.id);
+
+        if (!document) {
+            return res.status(404).json({ message: "Document not found" });
+        }
+
+        const validatedDocument = await validateDocument({ ...document.toObject(), ...validatedReq }, !validatedReq.documentNumber);
+
+        if (validatedDocument.status === DocumentStatus.REJECTED) {
+            return res.status(400).json({ message: "Document with same number already exists" });
+        }
+
+        if (validatedDocument.status == DocumentStatus.VALIDATED) {
+            Object.assign(document, validatedReq);
+        }
+
+        document.status = validatedDocument.status;
+        await document.save();
+        res.status(200).json(document);
+    } catch (error) {
+        res.status(400).json({ message: "Update failed", error: error.message });
+    }
+}
+
 
 module.exports = {
     GetDocuments,
     GetDocumentDetails,
-    UploadDocument
+    UploadDocument,
+    UpdateDocumentData
 }

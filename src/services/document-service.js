@@ -131,7 +131,7 @@ const checkDocDates = (issueDate, dueDate) => {
     const sDate = new Date(issueDate);
     const eDate = new Date(dueDate);
 
-    return eDate < sDate;
+    return sDate <= eDate;
 }
 
 const checkMissingFields = (doc) => {
@@ -173,15 +173,13 @@ const checkLineItemsAndTotals = (doc) => {
     if (cSubtotal != subtotal) return false;
 
     return true;
-
 }
 
-const validateDocument = async (doc) => {
-    const docNumber = doc?.documentNumber;
+const validateDocument = async (doc, ignoreIsDuplicate = false) => {
     const missingFields = checkMissingFields(doc);
     const validDates = checkDocDates(doc?.issueDate, doc?.dueDate);
     const validLineItemsAndTotals = checkLineItemsAndTotals(doc);
-    const isDuplicate = await checkDuplicateDoc(docNumber);
+    const isDuplicate = await checkDuplicateDoc(doc?.documentNumber);
     let isValid = true;
 
     if (missingFields || !validDates || !validLineItemsAndTotals) {
@@ -189,7 +187,7 @@ const validateDocument = async (doc) => {
         isValid = false;
     }
 
-    if (isDuplicate) {
+    if (isDuplicate && !ignoreIsDuplicate) {
         doc.status = DocumentStatus.REJECTED;
         isValid = false;
     }

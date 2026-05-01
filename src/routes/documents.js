@@ -9,5 +9,6 @@ const upload = multer({ dest: 'uploads/', fileFilter: fileFilter });
 router.get('/', documentController.GetDocuments);
 router.get('/details/:id', documentController.GetDocumentDetails);
 router.post('/upload', upload.single('document'), documentController.UploadDocument);
+router.put('/:id', documentController.UpdateDocumentData);
 
 module.exports = router;
