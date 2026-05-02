@@ -3,8 +3,6 @@ const { FileType } = require("../enums/file-type");
 function fileFilter(req, file, cb) {
     const allowedTypes = [
         FileType.PDF,
-        FileType.IMAGEJPEG,
-        FileType.IMAGEPNG,
         FileType.CSV,
         FileType.TXT
     ];

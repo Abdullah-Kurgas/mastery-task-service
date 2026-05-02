@@ -23,20 +23,26 @@ const parseFileDoc = async (file) => {
             return {
                 ...extractedData,
                 name: fileName,
-                mediaType: file.mimetype,
+                mediaType: fileType,
                 size: fileSize
             };
         case FileType.TXT:
+            const parsedTXTFile = await parseTextFile(file);
+            const extractedTXTData = extractTXTData(parsedTXTFile);
 
-
-            return {};
+            return {
+                ...extractedTXTData,
+                name: fileName,
+                mediaType: fileType,
+                size: fileSize
+            };;
         case FileType.CSV:
             const extractedCSVData = await extractCSVData(file.path);
 
             return {
                 ...extractedCSVData,
                 name: fileName,
-                mediaType: file.mimetype,
+                mediaType: fileType,
                 size: fileSize
             };
 
@@ -122,6 +128,30 @@ const extractCSVData = async (filePath) => {
     return parsedData;
 }
 
+const parseTextFile = async (file) => {
+    try {
+        const fileText = await fs.promises.readFile(file.path, 'utf8');
+        const splittedText = fileText.split('\n');
+
+        return splittedText;
+    } catch (error) {
+        return '';
+    }
+}
+
+const extractTXTData = (textArray) => {
+    const documentType = extractDocumentType(textArray[0]);
+    const supplier = textArray[0].split(' ')[1];
+    const currency = extractCurrency(textArray[1]);
+
+    return {
+        documentType: documentType,
+        supplier: supplier,
+        currency: currency,
+        totalAmount: parseFloat(textArray[1].split(' ')?.[1]),
+    };
+}
+
 const extractDocumentType = (text) => {
     const content = text.toLowerCase();
     const invoicePoints = (content.match(/invoice|inv-\d{4}/g) || []).length;
@@ -137,7 +167,7 @@ const extractDocumentType = (text) => {
 }
 
 const extractCurrency = (text) => {
-    return text.match(/(?<=\d\s?)[A-Z]{3}/gi);
+    return text.match(/(?<=\d\s?)[A-Z]{3}/gi)[0];
 }
 
 const checkDuplicateDoc = async (docNumber, docId) => {

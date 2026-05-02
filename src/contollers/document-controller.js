@@ -29,7 +29,6 @@ const UploadDocument = async (req, res) => {
             folder: 'mastery_task',
             resource_type: 'auto',
         });
-        
 
         const newDoc = new Document({
             ...validatedDocument,
@@ -70,6 +69,7 @@ const UpdateDocumentData = async (req, res) => {
 
         if (validatedDocument.status == DocumentStatus.VALIDATED) {
             Object.assign(document, validatedReq);
+            document.updatedAt = new Date();
         }
 
         document.status = validatedDocument.status;
