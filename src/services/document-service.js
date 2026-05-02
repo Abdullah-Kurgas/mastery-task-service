@@ -71,7 +71,7 @@ const extractPDFData = (text, lineItems) => {
         taxPercent: +taxPercent?.[1],
         taxAmount: +taxPercent?.[2],
         totalAmount: parseFloat(total),
-        lineItems: lineItems
+        lineItems: manageLineItems(lineItems)
     };
 };
 
@@ -143,13 +143,29 @@ const extractTXTData = (textArray) => {
     const documentType = extractDocumentType(textArray[0]);
     const supplier = textArray[0].split(' ')[1];
     const currency = extractCurrency(textArray[1]);
+    const totalAmount = parseFloat(textArray[1].split(' ')?.[1])
 
     return {
         documentType: documentType,
         supplier: supplier,
         currency: currency,
-        totalAmount: parseFloat(textArray[1].split(' ')?.[1]),
+        totalAmount: totalAmount,
+        lineItems: manageLineItems([], totalAmount)
     };
+}
+
+const manageLineItems = (lineItems, total) => {
+    const lineItem = {
+        description: 'Total per document',
+        quantity: 1,
+        unitPrice: total,
+        total: total
+    }
+
+    if (lineItems?.length) return lineItems;
+
+    if (!total) return [];
+    return [lineItem];
 }
 
 const extractDocumentType = (text) => {

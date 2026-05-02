@@ -5,7 +5,7 @@ const cloudinary = require('../config/cloudinary');
 const { parseFileDoc, deleteStorageDocument, validateDocument } = require("../services/document-service");
 
 const GetDocuments = async (req, res) => {
-    const documents = await Document.find();
+    const documents = await Document.find().sort({ createdAt: -1 });
     res.send(documents);
 }
 
