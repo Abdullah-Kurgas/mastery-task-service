@@ -4,6 +4,7 @@ const fs = require('fs');
 const { FileType } = require('../enums/file-type');
 const { Document } = require('../models/document-model');
 const { DocumentStatus } = require('../enums/document-status');
+const { DocumentType } = require('../enums/document-type');
 
 const parseFileDoc = async (file) => {
     const fileName = file.originalname;
@@ -45,10 +46,11 @@ const parseFileDoc = async (file) => {
 }
 
 const extractPDFData = (text, lineItems) => {
-    const documentType = text.match(/(.+)/i)?.[0];
+    const documentType = extractDocumentType(text);
     const supplier = text.match(/Supplier:\s*(.+)/i)?.[1];
     const docNumber = text.match(/Number:\s*([\w-]+)/i)?.[1];
     const issueDate = text.match(/Date:\s*(\d{4}-\d{2}-\d{2})/i)?.[1];
+    const currency = extractCurrency(text);
     const subtotal = text.match(/Subtotal\s*([\d.]+)/i)?.[1];
     const taxPercent = text.match(/(?:tax|vat)\s*\(?([\d.]+)%?\)?\s*([\d.,]+)/i);
     const total = text.match(/^Total\s*([\d.]+)/m)?.[1];
@@ -58,6 +60,7 @@ const extractPDFData = (text, lineItems) => {
         supplier: supplier?.trim(),
         documentNumber: docNumber,
         issueDate: issueDate,
+        currency: currency,
         subtotal: parseFloat(subtotal),
         taxPercent: +taxPercent?.[1],
         taxAmount: +taxPercent?.[2],
@@ -117,6 +120,24 @@ const extractCSVData = async (filePath) => {
     });
 
     return parsedData;
+}
+
+const extractDocumentType = (text) => {
+    const content = text.toLowerCase();
+    const invoicePoints = (content.match(/invoice|inv-\d{4}/g) || []).length;
+    const poPoints = (content.match(/purchase order|po-\d{5}/g) || []).length;
+
+    if (invoicePoints > poPoints) {
+        return DocumentType.INVOICE;
+    } else if (poPoints > invoicePoints) {
+        return DocumentType.PURCHASE_ORDER;
+    }
+
+    return null;
+}
+
+const extractCurrency = (text) => {
+    return text.match(/(?<=\d\s?)[A-Z]{3}/gi);
 }
 
 const checkDuplicateDoc = async (docNumber, docId) => {

@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const { DocumentStatus } = require("../enums/document-status");
+const { DocumentType } = require("../enums/document-type");
+const { FileType } = require("../enums/file-type");
 const { Schema } = mongoose;
 
 const lineItemSchema = new Schema(
@@ -15,7 +17,11 @@ const lineItemSchema = new Schema(
 const documentSchema = new Schema({
   name: { type: String, immutable: true },
   path: { type: String, immutable: true },
-  documentType: { type: String, default: null },
+  documentType: {
+    type: String,
+    enum: [DocumentType.INVOICE, DocumentType.PURCHASE_ORDER],
+    default: null,
+  },
   supplier: { type: String, default: null },
   documentNumber: { type: String, default: null },
   issueDate: {
@@ -28,13 +34,36 @@ const documentSchema = new Schema({
     match: [/^\d{4}-\d{2}-\d{2}$/, "Please use YYYY-MM-DD format"],
     default: null,
   },
-  currency: { type: String, default: null },
+  currency: {
+    type: String,
+    match: [/^([A-Z]{3})$/, "Please use currency format"],
+    default: null,
+  },
   subtotal: { type: Number, default: null },
   taxAmount: { type: Number, default: null },
   taxPercent: { type: Number, default: null },
   totalAmount: { type: Number, default: null },
-  status: { type: String, default: DocumentStatus.UPLOADED },
-  mediaType: { type: String, immutable: true },
+  status: {
+    type: String,
+    enum: [
+      DocumentStatus.UPLOADED,
+      DocumentStatus.NEEDS_REVIEW,
+      DocumentStatus.VALIDATED,
+      DocumentStatus.REJECTED,
+    ],
+    default: DocumentStatus.UPLOADED,
+  },
+  mediaType: {
+    type: String,
+    enum: [
+      FileType.CSV,
+      FileType.IMAGEJPEG,
+      FileType.IMAGEPNG,
+      FileType.TXT,
+      FileType.PDF,
+    ],
+    immutable: true,
+  },
   size: { type: Number, immutable: true },
   lineItems: [lineItemSchema],
   createdAt: { type: Date, default: Date.now, immutable: true },
