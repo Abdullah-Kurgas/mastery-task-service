@@ -167,7 +167,7 @@ const extractDocumentType = (text) => {
 }
 
 const extractCurrency = (text) => {
-    return text.match(/(?<=\d\s?)[A-Z]{3}/gi)[0];
+    return text.match(/\d\s?([A-Z]{3})/)?.[1] || null;
 }
 
 const checkDuplicateDoc = async (docNumber, docId) => {

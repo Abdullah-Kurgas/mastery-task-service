@@ -37,6 +37,7 @@ const documentSchema = new Schema({
   currency: {
     type: String,
     match: [/^([A-Z]{3})$/, "Please use currency format"],
+    required: false,
     default: null,
   },
   subtotal: { type: Number, default: null },
