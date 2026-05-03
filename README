@@ -6,6 +6,15 @@
 
 2 - Install dependencies: npm install
 
+3 - Create .env file and add these 
+
+    (## These are test credentials, so it's okay to include them)
+
+    MONGO_URI=mongodb+srv://testUser:Pass123@mastery-task-db.9nbzfs4.mongodb.net/?appName=mastery-task-db
+    CLOUDINARY_NAME=dzbizu8pe
+    CLOUDINARY_API_KEY=826427539544613
+    CLOUDINARY_API_SECRET=9kP_0BKziaH7I3rMKgmOKr2v7JU
+
 3 - Run locally: npm run dev
 
 4 - Production run: npm run start
