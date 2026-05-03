@@ -263,6 +263,7 @@ const validateDocument = async (doc, ignoreIsDuplicate = false, docId = null) =>
 
     if (isDuplicate && !ignoreIsDuplicate) {
         doc.status = DocumentStatus.REJECTED;
+        doc.documentNumber = null;
         isValid = false;
     }
 
